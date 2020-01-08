@@ -1,9 +1,8 @@
-import {
-  ApolloProvider,
-  ApolloClient,
-  createHttpLink,
-  InMemoryCache
-} from "@apollo/client";
+import { ApolloClient } from "apollo-client";
+import { ApolloProvider } from "@apollo/react-hooks";
+import { InMemoryCache } from "apollo-boost";
+import { createHttpLink } from "apollo-link-http";
+
 import Express from "express";
 import { StaticRouter } from "react-router";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -38,7 +37,7 @@ app.use((req, res) => {
     ssrMode: true,
     link: createHttpLink({
       // technically this fails below but even that error is never displayed
-      uri: "https://anilist.co/graphql",
+      uri: "https://graphql.anilist.co/",
       credentials: "same-origin",
       headers: {
         cookie: req.header("Cookie")
@@ -58,15 +57,18 @@ app.use((req, res) => {
     </ApolloProvider>
   );
 
-  renderToStringWithData(App).then(content => {
-    const initialState = client.extract();
-    const html = <Html content={content} state={initialState} />;
+  renderToStringWithData(App)
+    .then(content => {
+      const initialState = client.extract();
+      const html = <Html content={content} state={initialState} />;
 
-    res.status(200);
-    res.send(`<!doctype html>\n${renderToStaticMarkup(html)}`);
-    res.end();
-  });
+      res.status(200);
+      res.send(`<!doctype html>\n${renderToStaticMarkup(html)}`);
+      res.end();
+    })
+    .catch(error => console.log("error", error));
 });
+
 const basePort = 8080;
 
 app.listen(basePort, () =>

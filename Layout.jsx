@@ -1,6 +1,7 @@
 import React from "react";
 
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "apollo-boost";
+import { useQuery } from "@apollo/react-hooks";
 import { Switch, Route } from "react-router-dom";
 
 const GET_DOGS = gql`
@@ -12,7 +13,7 @@ const GET_DOGS = gql`
 `;
 
 function Component() {
-  const { loading, error, _data } = useQuery(GET_DOGS);
+  const { loading, error, data } = useQuery(GET_DOGS);
 
   if (loading) {
     return "loading";
@@ -23,7 +24,7 @@ function Component() {
   }
 
   // in SSR, we should see this "data" rendered
-  return "data";
+  return <code>{JSON.stringify(data)}</code>;
 }
 
 function Layout() {
